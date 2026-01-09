@@ -1,0 +1,25 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-DiscoveryserverApplication<discoveryserver>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.cinema.discoveryserver.DiscoveryserverApplication",
+            "projectName": "discoveryserver",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env",
+            "vmArgs": " -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=50295 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dspring.jmx.enabled=true -Djava.rmi.server.hostname=localhost -Dspring.application.admin.enabled=true -Dspring.boot.project.name=discoveryserver"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-MoviesApplication<movies>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.cinema.movies.MoviesApplication",
+            "projectName": "movies",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}
