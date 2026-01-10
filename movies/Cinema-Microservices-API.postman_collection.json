@@ -1,0 +1,559 @@
+{
+	"info": {
+		"_postman_id": "cinema-microservices-collection",
+		"name": "Cinema Microservices API",
+		"description": "Collection tổng hợp các API endpoints của Cinema System - bao gồm Movie Service và các services khác",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Movie Service",
+			"item": [
+				{
+					"name": "Create Movie",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"Avatar: The Way of Water\",\n    \"description\": \"Jake Sully lives with his newfound family formed on the extrasolar moon Pandora.\",\n    \"duration\": 192,\n    \"posterUrl\": \"https://example.com/posters/avatar2.jpg\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:9001/api/v1/movies",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "9001",
+							"path": ["api", "v1", "movies"]
+						},
+						"description": "Tạo mới một bộ phim trong hệ thống."
+					},
+					"response": []
+				},
+				{
+					"name": "Update Movie",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"Avatar: The Way of Water (Extended Edition)\",\n    \"description\": \"Extended version with additional scenes.\",\n    \"duration\": 210,\n    \"posterUrl\": \"https://example.com/posters/avatar2-extended.jpg\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:9001/api/v1/movies/550e8400-e29b-41d4-a716-446655440000",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "9001",
+							"path": ["api", "v1", "movies", "550e8400-e29b-41d4-a716-446655440000"]
+						},
+						"description": "Cập nhật thông tin của một bộ phim đã tồn tại. Thay thế {id} bằng Movie ID thực tế."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Movie",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:9001/api/v1/movies/550e8400-e29b-41d4-a716-446655440000",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "9001",
+							"path": ["api", "v1", "movies", "550e8400-e29b-41d4-a716-446655440000"]
+						},
+						"description": "Xóa một bộ phim khỏi hệ thống. Thay thế {id} bằng Movie ID thực tế."
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Movies",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:9001/api/v1/movies",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "9001",
+							"path": ["api", "v1", "movies"]
+						},
+						"description": "Lấy danh sách tất cả các bộ phim trong hệ thống."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Movie By ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:9001/api/v1/movies/movie-uuid-here",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "9001",
+							"path": ["api", "v1", "movies", "movie-uuid-here"]
+						},
+						"description": "Lấy thông tin chi tiết của một bộ phim theo ID."
+					},
+					"response": []
+				}
+			],
+			"description": "Movie Service - Quản lý thông tin phim. Port: 9001"
+		},
+		{
+			"name": "Cinema Service",
+			"item": [
+				{
+					"name": "Create Cinema",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"CGV Vincom Center\",\n    \"address\": \"72 Lê Thánh Tôn, Quận 1, TP. Hồ Chí Minh\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:9001/api/v1/cinemas",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "9001",
+							"path": ["api", "v1", "cinemas"]
+						},
+						"description": "Tạo mới một rạp chiếu phim trong hệ thống."
+					},
+					"response": []
+				},
+				{
+					"name": "Update Cinema",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"CGV Vincom Mega Mall\",\n    \"address\": \"72 Lê Thánh Tôn, Phường Bến Nghé, Quận 1, TP. Hồ Chí Minh\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:9001/api/v1/cinemas/cinema-uuid-here",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "9001",
+							"path": ["api", "v1", "cinemas", "cinema-uuid-here"]
+						},
+						"description": "Cập nhật thông tin của một rạp chiếu đã tồn tại."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Cinema",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:9001/api/v1/cinemas/cinema-uuid-here",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "9001",
+							"path": ["api", "v1", "cinemas", "cinema-uuid-here"]
+						},
+						"description": "Xóa một rạp chiếu khỏi hệ thống."
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Cinemas",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:9001/api/v1/cinemas",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "9001",
+							"path": ["api", "v1", "cinemas"]
+						},
+						"description": "Lấy danh sách tất cả các rạp chiếu phim."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Cinema By ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:9001/api/v1/cinemas/cinema-uuid-here",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "9001",
+							"path": ["api", "v1", "cinemas", "cinema-uuid-here"]
+						},
+						"description": "Lấy thông tin chi tiết của một rạp chiếu theo ID."
+					},
+					"response": []
+				}
+			],
+			"description": "Cinema Service - Quản lý rạp chiếu phim. Endpoints: /api/v1/cinemas"
+		},
+		{
+			"name": "Seat Service",
+			"item": [
+				{
+					"name": "Create Seat",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"cinemaId\": \"cinema-uuid-here\",\n    \"seatRow\": \"A\",\n    \"seatNumber\": 1\n}"
+						},
+						"url": {
+							"raw": "http://localhost:9001/api/v1/seats",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "9001",
+							"path": ["api", "v1", "seats"]
+						},
+						"description": "Tạo mới một ghế ngồi cho rạp chiếu."
+					},
+					"response": []
+				},
+				{
+					"name": "Update Seat",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"cinemaId\": \"cinema-uuid-here\",\n    \"seatRow\": \"B\",\n    \"seatNumber\": 5\n}"
+						},
+						"url": {
+							"raw": "http://localhost:9001/api/v1/seats/seat-uuid-here",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "9001",
+							"path": ["api", "v1", "seats", "seat-uuid-here"]
+						},
+						"description": "Cập nhật thông tin ghế ngồi."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Seat",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:9001/api/v1/seats/seat-uuid-here",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "9001",
+							"path": ["api", "v1", "seats", "seat-uuid-here"]
+						},
+						"description": "Xóa một ghế ngồi khỏi hệ thống."
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Seats",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:9001/api/v1/seats",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "9001",
+							"path": ["api", "v1", "seats"]
+						},
+						"description": "Lấy danh sách tất cả các ghế ngồi trong hệ thống."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Seat By ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:9001/api/v1/seats/seat-uuid-here",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "9001",
+							"path": ["api", "v1", "seats", "seat-uuid-here"]
+						},
+						"description": "Lấy thông tin chi tiết của một ghế ngồi theo ID."
+					},
+					"response": []
+				}
+			],
+			"description": "Seat Service - Quản lý ghế ngồi. Endpoints: /api/v1/seats"
+		},
+		{
+			"name": "ShowTime Service",
+			"item": [
+				{
+					"name": "Create ShowTime",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"movieId\": \"movie-uuid-here\",\n    \"cinemaId\": \"cinema-uuid-here\",\n    \"startTime\": \"2026-01-15T19:30:00\",\n    \"price\": 85000\n}"
+						},
+						"url": {
+							"raw": "http://localhost:9001/api/v1/showtimes",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "9001",
+							"path": ["api", "v1", "showtimes"]
+						},
+						"description": "Tạo mới một suất chiếu phim."
+					},
+					"response": []
+				},
+				{
+					"name": "Update ShowTime",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"movieId\": \"movie-uuid-here\",\n    \"cinemaId\": \"cinema-uuid-here\",\n    \"startTime\": \"2026-01-15T20:00:00\",\n    \"price\": 95000\n}"
+						},
+						"url": {
+							"raw": "http://localhost:9001/api/v1/showtimes/showtime-uuid-here",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "9001",
+							"path": ["api", "v1", "showtimes", "showtime-uuid-here"]
+						},
+						"description": "Cập nhật thông tin suất chiếu."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete ShowTime",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:9001/api/v1/showtimes/showtime-uuid-here",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "9001",
+							"path": ["api", "v1", "showtimes", "showtime-uuid-here"]
+						},
+						"description": "Xóa một suất chiếu khỏi hệ thống."
+					},
+					"response": []
+				},
+				{
+					"name": "Get All ShowTimes",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:9001/api/v1/showtimes",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "9001",
+							"path": ["api", "v1", "showtimes"]
+						},
+						"description": "Lấy danh sách tất cả các suất chiếu."
+					},
+					"response": []
+				},
+				{
+					"name": "Get ShowTime By ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:9001/api/v1/showtimes/showtime-uuid-here",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "9001",
+							"path": ["api", "v1", "showtimes", "showtime-uuid-here"]
+						},
+						"description": "Lấy thông tin chi tiết của một suất chiếu theo ID."
+					},
+					"response": []
+				}
+			],
+			"description": "ShowTime Service - Quản lý suất chiếu. Endpoints: /api/v1/showtimes"
+		},
+		{
+			"name": "Booking Service",
+			"item": [],
+			"description": "Booking Service - Quản lý đặt vé. Port: 9004 (Coming soon)"
+		},
+		{
+			"name": "Discovery Server",
+			"item": [
+				{
+					"name": "Eureka Dashboard",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8761",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8761"
+						},
+						"description": "Truy cập Eureka Dashboard để xem tất cả các services đã đăng ký"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Registered Services",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8761/eureka/apps",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8761",
+							"path": ["eureka", "apps"]
+						},
+						"description": "Lấy danh sách tất cả services đã đăng ký với Eureka (JSON format)"
+					},
+					"response": []
+				}
+			],
+			"description": "Discovery Server (Eureka) - Service Registry. Port: 8761"
+		},
+		{
+			"name": "Health Check & Monitoring",
+			"item": [
+				{
+					"name": "Actuator Health - Movie Service",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:9001/actuator/health",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "9001",
+							"path": ["actuator", "health"]
+						},
+						"description": "Kiểm tra trạng thái sức khỏe của Movie Service"
+					},
+					"response": []
+				},
+				{
+					"name": "Service Info - Movie Service",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:9001/actuator/info",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "9001",
+							"path": ["actuator", "info"]
+						},
+						"description": "Lấy thông tin về Movie Service"
+					},
+					"response": []
+				}
+			],
+			"description": "Health Check & Monitoring - Kiểm tra trạng thái các services"
+		},
+		{
+			"name": "Database Console",
+			"item": [
+				{
+					"name": "H2 Console - Movie Service",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:9001/h2-console",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "9001",
+							"path": ["h2-console"]
+						},
+						"description": "Truy cập H2 Database Console. JDBC URL: jdbc:h2:mem:moviesDB, Username: sa, Password: (để trống)"
+					},
+					"response": []
+				}
+			],
+			"description": "Database Console - Quản lý và xem dữ liệu"
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:9001",
+			"type": "string"
+		},
+		{
+			"key": "apiVersion",
+			"value": "v1",
+			"type": "string"
+		},
+		{
+			"key": "eurekaUrl",
+			"value": "http://localhost:8761",
+			"type": "string"
+		}
+	]
+}
