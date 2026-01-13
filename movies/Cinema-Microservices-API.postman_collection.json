@@ -7,10 +7,65 @@
 	},
 	"item": [
 		{
+			"name": "File Upload Service",
+			"item": [
+				{
+					"name": "Upload Movie Poster",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": []
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:9001/api/v1/upload/poster",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "9001",
+							"path": ["api", "v1", "upload", "poster"]
+						},
+						"description": "Upload hình ảnh poster cho phim. File phải là image (jpg, png, gif, webp) và không quá 5MB."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Movie Poster",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:9001/api/v1/upload/poster?url=http://localhost:9000/cinema-movies/uuid-filename.jpg",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "9001",
+							"path": ["api", "v1", "upload", "poster"],
+							"query": [
+								{
+									"key": "url",
+									"value": "http://localhost:9000/cinema-movies/uuid-filename.jpg",
+									"description": "URL đầy đủ của poster cần xóa"
+								}
+							]
+						},
+						"description": "Xóa hình ảnh poster từ MinIO storage."
+					},
+					"response": []
+				}
+			],
+			"description": "File Upload Service - Upload và quản lý hình ảnh poster với MinIO. Port: 9001"
+		},
+		{
 			"name": "Movie Service",
 			"item": [
 				{
-					"name": "Create Movie",
+					"name": "Create Movie (JSON)",
 					"request": {
 						"method": "POST",
 						"header": [
@@ -22,7 +77,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"title\": \"Avatar: The Way of Water\",\n    \"description\": \"Jake Sully lives with his newfound family formed on the extrasolar moon Pandora.\",\n    \"duration\": 192,\n    \"posterUrl\": \"https://example.com/posters/avatar2.jpg\"\n}"
+							"raw": "{\n    \"title\": \"Avatar: The Way of Water\",\n    \"description\": \"Jake Sully lives with his newfound family formed on the extrasolar moon Pandora.\",\n    \"duration\": 192,\n    \"posterUrl\": \"http://localhost:9000/cinema-movies/uuid-filename.jpg\"\n}"
 						},
 						"url": {
 							"raw": "http://localhost:9001/api/v1/movies",
@@ -31,12 +86,53 @@
 							"port": "9001",
 							"path": ["api", "v1", "movies"]
 						},
-						"description": "Tạo mới một bộ phim trong hệ thống."
+						"description": "Tạo mới một bộ phim với posterUrl có sẵn (JSON)."
 					},
 					"response": []
 				},
 				{
-					"name": "Update Movie",
+					"name": "Create Movie (With File Upload)",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "title",
+									"value": "Avatar: The Way of Water",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "Jake Sully lives with his newfound family formed on the extrasolar moon Pandora.",
+									"type": "text"
+								},
+								{
+									"key": "duration",
+									"value": "192",
+									"type": "text"
+								},
+								{
+									"key": "file",
+									"type": "file",
+									"src": []
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:9001/api/v1/movies/with-file",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "9001",
+							"path": ["api", "v1", "movies", "with-file"]
+						},
+						"description": "Tạo mới một bộ phim và upload poster cùng lúc qua form-data."
+					},
+					"response": []
+				},
+				{
+					"name": "Update Movie (JSON)",
 					"request": {
 						"method": "PUT",
 						"header": [
@@ -48,7 +144,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"title\": \"Avatar: The Way of Water (Extended Edition)\",\n    \"description\": \"Extended version with additional scenes.\",\n    \"duration\": 210,\n    \"posterUrl\": \"https://example.com/posters/avatar2-extended.jpg\"\n}"
+							"raw": "{\n    \"title\": \"Avatar: The Way of Water (Extended Edition)\",\n    \"description\": \"Extended version with additional scenes.\",\n    \"duration\": 210,\n    \"posterUrl\": \"http://localhost:9000/cinema-movies/new-uuid-filename.jpg\"\n}"
 						},
 						"url": {
 							"raw": "http://localhost:9001/api/v1/movies/550e8400-e29b-41d4-a716-446655440000",
@@ -57,7 +153,49 @@
 							"port": "9001",
 							"path": ["api", "v1", "movies", "550e8400-e29b-41d4-a716-446655440000"]
 						},
-						"description": "Cập nhật thông tin của một bộ phim đã tồn tại. Thay thế {id} bằng Movie ID thực tế."
+						"description": "Cập nhật thông tin của một bộ phim với posterUrl có sẵn (JSON)."
+					},
+					"response": []
+				},
+				{
+					"name": "Update Movie (With File Upload)",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "title",
+									"value": "Avatar: The Way of Water (Extended)",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "Extended version with additional scenes.",
+									"type": "text"
+								},
+								{
+									"key": "duration",
+									"value": "210",
+									"type": "text"
+								},
+								{
+									"key": "file",
+									"type": "file",
+									"src": [],
+									"description": "Để trống nếu muốn giữ nguyên poster cũ"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:9001/api/v1/movies/550e8400-e29b-41d4-a716-446655440000/with-file",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "9001",
+							"path": ["api", "v1", "movies", "550e8400-e29b-41d4-a716-446655440000", "with-file"]
+						},
+						"description": "Cập nhật thông tin phim và upload poster mới. Nếu không chọn file, poster cũ sẽ được giữ nguyên."
 					},
 					"response": []
 				},
@@ -537,6 +675,43 @@
 				}
 			],
 			"description": "Database Console - Quản lý và xem dữ liệu"
+		},
+		{
+			"name": "MinIO Console",
+			"item": [
+				{
+					"name": "MinIO Web Console",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:9001",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "9001"
+						},
+						"description": "Truy cập MinIO Console. Username: minioadmin, Password: minioadmin"
+					},
+					"response": []
+				},
+				{
+					"name": "Access Uploaded Image",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:9000/cinema-movies/uuid-filename.jpg",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "9000",
+							"path": ["cinema-movies", "uuid-filename.jpg"]
+						},
+						"description": "Truy cập trực tiếp file đã upload. Thay thế uuid-filename.jpg bằng tên file thực tế."
+					},
+					"response": []
+				}
+			],
+			"description": "MinIO Storage - Object Storage cho hình ảnh. Port: 9000 (API), 9001 (Console)"
 		}
 	],
 	"variable": [
@@ -553,6 +728,16 @@
 		{
 			"key": "eurekaUrl",
 			"value": "http://localhost:8761",
+			"type": "string"
+		},
+		{
+			"key": "minioUrl",
+			"value": "http://localhost:9000",
+			"type": "string"
+		},
+		{
+			"key": "posterUrl",
+			"value": "",
 			"type": "string"
 		}
 	]
