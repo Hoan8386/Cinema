@@ -3,6 +3,7 @@ package com.cinema.movies.command.event;
 import org.axonframework.eventhandling.EventHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.cinema.movies.command.data.Movie;
 import com.cinema.movies.command.data.Cinema;
@@ -24,15 +25,24 @@ public class ShowTimeEventHandler {
     private CinemaRepository cinemaRepository;
 
     @EventHandler
+    @Transactional
     public void on(ShowTimeCreatedEvent event) {
-        Movie movie = movieRepository.findById(event.getMovieId()).orElse(null);
-        Cinema cinema = cinemaRepository.findById(event.getCinemaId()).orElse(null);
+        ShowTime showTime = new ShowTime();
+        showTime.setId(event.getId());
+        showTime.setMovie(movieRepository.getReferenceById(event.getMovieId()));
+        showTime.setCinema(cinemaRepository.getReferenceById(event.getCinemaId()));
+        showTime.setStartTime(event.getStartTime());
+        showTime.setPrice(event.getPrice());
+        showTimeRepository.save(showTime);
+    }
 
-        if (movie != null && cinema != null) {
-            ShowTime showTime = new ShowTime();
-            showTime.setId(event.getId());
-            showTime.setMovie(movie);
-            showTime.setCinema(cinema);
+    @EventHandler
+    @Transactional
+    public void on(ShowTimeUpdatedEvent event) {
+        ShowTime showTime = showTimeRepository.findById(event.getId()).orElse(null);
+        if (showTime != null) {
+            showTime.setMovie(movieRepository.getReferenceById(event.getMovieId()));
+            showTime.setCinema(cinemaRepository.getReferenceById(event.getCinemaId()));
             showTime.setStartTime(event.getStartTime());
             showTime.setPrice(event.getPrice());
             showTimeRepository.save(showTime);
@@ -40,23 +50,7 @@ public class ShowTimeEventHandler {
     }
 
     @EventHandler
-    public void on(ShowTimeUpdatedEvent event) {
-        ShowTime showTime = showTimeRepository.findById(event.getId()).orElse(null);
-        if (showTime != null) {
-            Movie movie = movieRepository.findById(event.getMovieId()).orElse(null);
-            Cinema cinema = cinemaRepository.findById(event.getCinemaId()).orElse(null);
-
-            if (movie != null && cinema != null) {
-                showTime.setMovie(movie);
-                showTime.setCinema(cinema);
-                showTime.setStartTime(event.getStartTime());
-                showTime.setPrice(event.getPrice());
-                showTimeRepository.save(showTime);
-            }
-        }
-    }
-
-    @EventHandler
+    @Transactional
     public void on(ShowTimeDeletedEvent event) {
         showTimeRepository.deleteById(event.getId());
     }

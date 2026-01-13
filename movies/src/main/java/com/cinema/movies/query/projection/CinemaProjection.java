@@ -34,11 +34,9 @@ public class CinemaProjection {
     }
 
     @QueryHandler
-    public CinemaResponseModel handle(GetCinemaByIdQuery query) {
-        Cinema cinema = cinemaRepository.findById(query.getId()).orElse(null);
-        if (cinema == null) {
-            return null;
-        }
+    public CinemaResponseModel handle(GetCinemaByIdQuery query) throws Exception {
+        Cinema cinema = cinemaRepository.findById(query.getId())
+                .orElseThrow(() -> new Exception("Not found cinemas :" + query.getId()));
         CinemaResponseModel model = new CinemaResponseModel();
         BeanUtils.copyProperties(cinema, model);
         return model;

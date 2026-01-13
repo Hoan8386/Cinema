@@ -3,6 +3,7 @@ package com.cinema.movies.command.event;
 import org.axonframework.eventhandling.EventHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.cinema.movies.command.data.Cinema;
 import com.cinema.movies.command.data.Seat;
@@ -19,12 +20,22 @@ public class SeatEventHandler {
     private CinemaRepository cinemaRepository;
 
     @EventHandler
+    @Transactional
     public void on(SeatCreatedEvent event) {
-        Cinema cinema = cinemaRepository.findById(event.getCinemaId()).orElse(null);
-        if (cinema != null) {
-            Seat seat = new Seat();
-            seat.setId(event.getId());
-            seat.setCinema(cinema);
+        Seat seat = new Seat();
+        seat.setId(event.getId());
+        seat.setCinema(cinemaRepository.getReferenceById(event.getCinemaId()));
+        seat.setSeatRow(event.getSeatRow());
+        seat.setSeatNumber(event.getSeatNumber());
+        seatRepository.save(seat);
+    }
+
+    @EventHandler
+    @Transactional
+    public void on(SeatUpdatedEvent event) {
+        Seat seat = seatRepository.findById(event.getId()).orElse(null);
+        if (seat != null) {
+            seat.setCinema(cinemaRepository.getReferenceById(event.getCinemaId()));
             seat.setSeatRow(event.getSeatRow());
             seat.setSeatNumber(event.getSeatNumber());
             seatRepository.save(seat);
@@ -32,20 +43,7 @@ public class SeatEventHandler {
     }
 
     @EventHandler
-    public void on(SeatUpdatedEvent event) {
-        Seat seat = seatRepository.findById(event.getId()).orElse(null);
-        if (seat != null) {
-            Cinema cinema = cinemaRepository.findById(event.getCinemaId()).orElse(null);
-            if (cinema != null) {
-                seat.setCinema(cinema);
-                seat.setSeatRow(event.getSeatRow());
-                seat.setSeatNumber(event.getSeatNumber());
-                seatRepository.save(seat);
-            }
-        }
-    }
-
-    @EventHandler
+    @Transactional
     public void on(SeatDeletedEvent event) {
         seatRepository.deleteById(event.getId());
     }

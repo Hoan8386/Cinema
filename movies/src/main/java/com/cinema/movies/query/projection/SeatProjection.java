@@ -7,6 +7,7 @@ import com.cinema.movies.query.queries.GetAllSeatsQuery;
 import com.cinema.movies.query.queries.GetSeatByIdQuery;
 import org.axonframework.queryhandling.QueryHandler;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -21,19 +22,19 @@ public class SeatProjection {
     }
 
     @QueryHandler
+    @Transactional(readOnly = true)
     public List<SeatResponseModel> handle(GetAllSeatsQuery query) {
-        List<Seat> seats = seatRepository.findAll();
+        List<Seat> seats = seatRepository.findAllWithDetails();
         return seats.stream()
                 .map(this::mapToResponseModel)
                 .collect(Collectors.toList());
     }
 
     @QueryHandler
-    public SeatResponseModel handle(GetSeatByIdQuery query) {
-        Seat seat = seatRepository.findById(query.getId()).orElse(null);
-        if (seat == null) {
-            return null;
-        }
+    @Transactional(readOnly = true)
+    public SeatResponseModel handle(GetSeatByIdQuery query) throws Exception {
+        Seat seat = seatRepository.findByIdWithDetails(query.getId())
+                .orElseThrow(() -> new Exception("Not found seats :" + query.getId()));
         return mapToResponseModel(seat);
     }
 

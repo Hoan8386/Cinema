@@ -7,6 +7,7 @@ import com.cinema.movies.query.queries.GetAllShowTimesQuery;
 import com.cinema.movies.query.queries.GetShowTimeByIdQuery;
 import org.axonframework.queryhandling.QueryHandler;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -21,19 +22,19 @@ public class ShowTimeProjection {
     }
 
     @QueryHandler
+    @Transactional(readOnly = true)
     public List<ShowTimeResponseModel> handle(GetAllShowTimesQuery query) {
-        List<ShowTime> showTimes = showTimeRepository.findAll();
+        List<ShowTime> showTimes = showTimeRepository.findAllWithDetails();
         return showTimes.stream()
                 .map(this::mapToResponseModel)
                 .collect(Collectors.toList());
     }
 
     @QueryHandler
-    public ShowTimeResponseModel handle(GetShowTimeByIdQuery query) {
-        ShowTime showTime = showTimeRepository.findById(query.getId()).orElse(null);
-        if (showTime == null) {
-            return null;
-        }
+    @Transactional(readOnly = true)
+    public ShowTimeResponseModel handle(GetShowTimeByIdQuery query) throws Exception {
+        ShowTime showTime = showTimeRepository.findByIdWithDetails(query.getId())
+                .orElseThrow(() -> new Exception("Not found showtimes :" + query.getId()));
         return mapToResponseModel(showTime);
     }
 
