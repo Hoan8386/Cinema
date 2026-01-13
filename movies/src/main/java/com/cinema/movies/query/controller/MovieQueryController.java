@@ -19,6 +19,8 @@ public class MovieQueryController {
         this.queryGateway = queryGateway;
     }
 
+    // .join() có tác dụng chờ (block) cho đến khi QueryHandler xử lý xong và trả về
+    // kết quả
     @GetMapping
     public List<MovieResponseModel> getAllMovies() {
         GetAllMoviesQuery query = new GetAllMoviesQuery();

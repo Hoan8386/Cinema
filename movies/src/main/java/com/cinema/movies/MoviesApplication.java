@@ -7,7 +7,7 @@ import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
 @EnableDiscoveryClient
-@ComponentScan({ "com.cinema.movies" })
+@ComponentScan({ "com.cinema.movies", "com.cinema.commonservice" })
 public class MoviesApplication {
 
 	public static void main(String[] args) {

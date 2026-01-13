@@ -1,5 +1,6 @@
 package com.cinema.movies.command.event;
 
+import lombok.extern.slf4j.Slf4j;
 import org.axonframework.eventhandling.EventHandler;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,12 +10,14 @@ import com.cinema.movies.command.data.Movie;
 import com.cinema.movies.command.data.Reponsitory.MovieRepository;
 
 @Component
+@Slf4j
 public class MovieEventHandle {
     @Autowired
     private MovieRepository movieRepository;
 
     @EventHandler
     public void on(MovieCreateEvent event) {
+        log.info("Event received - ID: {}, Title: {}", event.getId(), event.getTitle());
         Movie movie = new Movie();
         BeanUtils.copyProperties(event, movie);
         movieRepository.save(movie);

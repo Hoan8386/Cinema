@@ -2,6 +2,7 @@ package com.cinema.movies.command.controller;
 
 import java.util.UUID;
 
+import jakarta.validation.Valid;
 import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -25,7 +26,7 @@ public class CinemaCommandController {
     private CommandGateway commandGateway;
 
     @PostMapping
-    public String createCinema(@RequestBody CinemaRequestModel model) {
+    public String createCinema(@Valid @RequestBody CinemaRequestModel model) {
         CreateCinemaCommand command = new CreateCinemaCommand(
                 UUID.randomUUID().toString(),
                 model.getName(),
@@ -34,7 +35,7 @@ public class CinemaCommandController {
     }
 
     @PutMapping("/{id}")
-    public String updateCinema(@PathVariable String id, @RequestBody CinemaRequestModel model) {
+    public String updateCinema(@PathVariable String id, @Valid @RequestBody CinemaRequestModel model) {
         UpdateCinemaCommand command = new UpdateCinemaCommand(
                 id,
                 model.getName(),

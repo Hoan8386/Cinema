@@ -1,5 +1,6 @@
 package com.cinema.movies.command.aggregate;
 
+import lombok.extern.slf4j.Slf4j;
 import org.axonframework.commandhandling.CommandHandler;
 import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.modelling.command.AggregateIdentifier;
@@ -18,6 +19,7 @@ import lombok.NoArgsConstructor;
 
 @Aggregate
 @NoArgsConstructor
+@Slf4j
 public class MovieAggregate {
     @AggregateIdentifier
     private String id;
@@ -33,6 +35,7 @@ public class MovieAggregate {
     // Constructor này sẽ được gọi khi tạo aggregate mới
     @CommandHandler
     public MovieAggregate(CreateMovieCommand command) {
+        log.info("Command received - ID: {}, Title: {}", command.getId(), command.getTitle());
         MovieCreateEvent movieCreateEvent = new MovieCreateEvent();
         BeanUtils.copyProperties(command, movieCreateEvent);
         AggregateLifecycle.apply(movieCreateEvent);

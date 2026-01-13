@@ -2,6 +2,7 @@ package com.cinema.movies.command.controller;
 
 import java.util.UUID;
 
+import jakarta.validation.Valid;
 import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -25,7 +26,7 @@ public class ShowTimeCommandController {
     private CommandGateway commandGateway;
 
     @PostMapping
-    public String createShowTime(@RequestBody ShowTimeRequestModel model) {
+    public String createShowTime(@Valid @RequestBody ShowTimeRequestModel model) {
         CreateShowTimeCommand command = new CreateShowTimeCommand(
                 UUID.randomUUID().toString(),
                 model.getMovieId(),
@@ -36,7 +37,7 @@ public class ShowTimeCommandController {
     }
 
     @PutMapping("/{id}")
-    public String updateShowTime(@PathVariable String id, @RequestBody ShowTimeRequestModel model) {
+    public String updateShowTime(@PathVariable String id, @Valid @RequestBody ShowTimeRequestModel model) {
         UpdateShowTimeCommand command = new UpdateShowTimeCommand(
                 id,
                 model.getMovieId(),

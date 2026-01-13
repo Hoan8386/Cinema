@@ -34,11 +34,9 @@ public class MovieProjection {
     }
 
     @QueryHandler
-    public MovieResponseModel handle(GetMovieByIdQuery query) {
-        Movie movie = movieRepository.findById(query.getId()).orElse(null);
-        if (movie == null) {
-            return null;
-        }
+    public MovieResponseModel handle(GetMovieByIdQuery query) throws Exception {
+        Movie movie = movieRepository.findById(query.getId())
+                .orElseThrow(() -> new Exception("Not found movies :" + query.getId()));
         MovieResponseModel model = new MovieResponseModel();
         BeanUtils.copyProperties(movie, model);
         return model;
