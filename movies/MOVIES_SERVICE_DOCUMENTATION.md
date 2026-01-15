@@ -25,6 +25,8 @@
 - **Cinemas (Rạp chiếu)**: Quản lý thông tin rạp
 - **Seats (Ghế ngồi)**: Quản lý ghế trong từng rạp
 - **ShowTimes (Suất chiếu)**: Quản lý lịch chiếu phim
+- **Employees (Nhân viên)**: Quản lý thông tin nhân viên rạp
+- **WorkShifts (Ca làm việc)**: Quản lý ca làm việc và điểm danh nhân viên
 
 ### Đặc điểm chính:
 
@@ -317,33 +319,83 @@ public class ShowTime {
 
 - Đại diện cho một suất chiếu cụ thể: phim gì, chiếu ở rạp nào, lúc mấy giờ, giá bao nhiêu
 
+### 5. Employee (Nhân viên)
+
+```java
+@Entity
+@Table(name = "employees")
+public class Employee {
+    @Id
+    private String id;              // UUID
+
+    @Column(name = "user_id", nullable = false)
+    private String userId;          // UUID của user từ User Service
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "cinema_id", nullable = false)
+    private Cinema cinema;          // Rạp làm việc
+
+    @Column(length = 50)
+    private String position;        // Vị trí: MANAGER, STAFF, TICKET_SELLER
+
+    @Column(length = 20)
+    private String status;          // ACTIVE, RESIGNED
+
+    @CreationTimestamp
+    @Column(name = "joined_at", updatable = false)
+    private LocalDateTime joinedAt; // Thời gian vào làm
+}
+```
+
+**Quan hệ:**
+
+- Mỗi Employee thuộc về 1 Cinema (Many-to-One)
+
+**Ý nghĩa các trường:**
+
+- `userId`: Tham chiếu đến user trong User Service
+- `position`: Vị trí làm việc (Quản lý, Nhân viên, Bán vé)
+- `status`: Trạng thái (Đang làm việc, Đã nghỉ)
+- `joinedAt`: Ngày bắt đầu làm việc
+
+### 6. WorkShift (Ca làm việc)
+
+```java
+@Entity
+@Table(name = "work_shifts")
+public class WorkShift {
+    @Id
+    private String id;              // UUID
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "employee_id", nullable = false)
+    private Employee employee;      // Nhân viên
+
+    @Column(name = "shift_name", length = 50)
+    private String shiftName;       // Sáng, Chiều, Tối
+
+    @Column(name = "start_time", nullable = false)
+    private LocalDateTime startTime; // Thời gian bắt đầu
+
+    @Column(name = "end_time", nullable = false)
+    private LocalDateTime endTime;   // Thời gian kết thúc
+
+    @Column(name = "is_attended")
+    private Boolean isAttended;     // Điểm danh
+}
+```
+
+**Quan hệ:**
+
+- Mỗi WorkShift thuộc về 1 Employee (Many-to-One)
+
+**Ý nghĩa:**
+
+- Đại diện cho một ca làm việc: nhân viên nào, ca nào, thời gian, đã điểm danh chưa
+
 ### Sơ Đồ Quan Hệ (ERD)
 
 ```
-┌─────────────┐
-│   Cinema    │
-│             │
-│ - id        │
-│ - name      │◄────────┐
-│ - address   │         │
-└─────────────┘         │
-       ▲                │
-       │ 1              │ 1
-       │                │
-       │ N              │ N
-┌─────────────┐   ┌─────────────┐
-│    Seat     │   │  ShowTime   │
-│             │   │             │
-│ - id        │   │ - id        │
-│ - cinema_id │   │ - movie_id  │
-│ - seatRow   │   │ - cinema_id │
-│ - seatNumber│   │ - startTime │
-└─────────────┘   │ - price     │
-                  └─────────────┘
-                         ▲
-                         │ N
-                         │
-                         │ 1
                   ┌─────────────┐
                   │    Movie    │
                   │             │
@@ -354,6 +406,59 @@ public class ShowTime {
                   │ - posterUrl │
                   │ - createdAt │
                   └─────────────┘
+                         │ 1
+                         │
+                         │ N
+                  ┌─────────────┐
+                  │  ShowTime   │
+                  │             │
+                  │ - id        │
+                  │ - movie_id  │──┐
+                  │ - cinema_id │  │
+                  │ - startTime │  │
+                  │ - price     │  │
+                  └─────────────┘  │
+                         │ N       │
+                         │         │
+                         │ 1       │
+┌─────────────┐          │         │
+│   Cinema    │◄─────────┘         │
+│             │                    │
+│ - id        │                    │
+│ - name      │                    │
+│ - address   │                    │
+└─────────────┘                    │
+       ▲                           │
+       │ 1                         │ 1
+       │                           │
+       ├──────────┐                │
+       │ N        │ N              │
+┌─────────────┐  ┌─────────────┐  │
+│    Seat     │  │  Employee   │  │
+│             │  │             │  │
+│ - id        │  │ - id        │  │
+│ - cinema_id │  │ - user_id   │  │
+│ - seatRow   │  │ - cinema_id │  │
+│ - seatNumber│  │ - position  │  │
+└─────────────┘  │ - status    │  │
+                 │ - joinedAt  │  │
+                 └─────────────┘  │
+                        ▲          │
+                        │ 1        │
+                        │          │
+                        │ N        │
+                 ┌─────────────┐  │
+                 │  WorkShift  │  │
+                 │             │  │
+                 │ - id        │  │
+                 │ - employee_id│  │
+                 │ - shiftName │  │
+                 │ - startTime │  │
+                 │ - endTime   │  │
+                 │ - isAttended│  │
+                 └─────────────┘  │
+                                  │
+                                  └──(Many-to-One relationship)
 ```
 
 ---
@@ -753,24 +858,183 @@ Response (201 Created):
 
 #### 2. Lấy Danh Sách Movies
 
-```http
+````http
 GET /api/v1/movies
+
+Response (200 OK):
+{
+### 👥 Employee APIs
+
+#### 1. Tạo Employee Mới
+
+```http
+POST /api/v1/employees
+Content-Type: application/json
+
+{
+  "userId": "user-uuid-123",
+  "cinemaId": "cinema-uuid-456",
+  "position": "STAFF",
+  "status": "ACTIVE"
+}
+
+Response (201 Created):
+{
+  "success": true,
+  "message": "Tạo nhân viên thành công",
+  "data": {
+    "id": "emp-uuid-789"
+  }
+}
+````
+
+#### 2. Lấy Danh Sách Employees
+
+```http
+GET /api/v1/employees
 
 Response (200 OK):
 {
   "success": true,
   "data": [
     {
-      "id": "123e4567-e89b-12d3-a456-426614174000",
-      "title": "Avatar 3",
-      "description": "The return of Na'vi",
-      "duration": 180,
-      "posterUrl": "https://example.com/avatar3.jpg",
-      "createdAt": "2026-01-13T10:30:00"
+      "id": "emp-uuid-789",
+      "userId": "user-uuid-123",
+      "cinemaId": "cinema-uuid-456",
+      "position": "STAFF",
+      "status": "ACTIVE",
+      "joinedAt": "2026-01-14T08:00:00"
     }
   ]
 }
 ```
+
+#### 3. Lấy Employee Theo ID
+
+```http
+GET /api/v1/employees/{id}
+```
+
+#### 4. Lấy Employees Theo Cinema
+
+```http
+GET /api/v1/employees/cinema/{cinemaId}
+```
+
+#### 5. Cập Nhật Employee
+
+```http
+PUT /api/v1/employees/{id}
+Content-Type: application/json
+
+{
+  "userId": "user-uuid-123",
+  "cinemaId": "cinema-uuid-456",
+  "position": "MANAGER",
+  "status": "ACTIVE"
+}
+```
+
+#### 6. Xóa Employee
+
+```http
+DELETE /api/v1/employees/{id}
+```
+
+### 📅 WorkShift APIs
+
+#### 1. Tạo WorkShift Mới
+
+```http
+POST /api/v1/workshifts
+Content-Type: application/json
+
+{
+  "employeeId": "emp-uuid-789",
+  "shiftName": "Sáng",
+  "startTime": "2026-01-15T08:00:00",
+  "endTime": "2026-01-15T12:00:00",
+  "isAttended": false
+}
+
+Response (201 Created):
+{
+  "success": true,
+  "message": "Tạo ca làm việc thành công",
+  "data": {
+    "id": "shift-uuid-999"
+  }
+}
+```
+
+#### 2. Lấy Danh Sách WorkShifts
+
+```http
+GET /api/v1/workshifts
+
+Response (200 OK):
+{
+  "success": true,
+  "data": [
+    {
+      "id": "shift-uuid-999",
+      "employeeId": "emp-uuid-789",
+      "shiftName": "Sáng",
+      "startTime": "2026-01-15T08:00:00",
+      "endTime": "2026-01-15T12:00:00",
+      "isAttended": false
+    }
+  ]
+}
+```
+
+#### 3. Lấy WorkShift Theo ID
+
+```http
+GET /api/v1/workshifts/{id}
+```
+
+#### 4. Lấy WorkShifts Theo Employee
+
+```http
+GET /api/v1/workshifts/employee/{employeeId}
+```
+
+#### 5. Cập Nhật WorkShift (Điểm danh)
+
+```http
+PUT /api/v1/workshifts/{id}
+Content-Type: application/json
+
+{
+  "employeeId": "emp-uuid-789",
+  "shiftName": "Sáng",
+  "startTime": "2026-01-15T08:00:00",
+  "endTime": "2026-01-15T12:00:00",
+  "isAttended": true
+}
+```
+
+#### 6. Xóa WorkShift
+
+```http
+DELETE /api/v1/workshifts/{id}
+```
+
+"success": true,
+"data": [
+{
+"id": "123e4567-e89b-12d3-a456-426614174000",
+"title": "Avatar 3",
+"description": "The return of Na'vi",
+"duration": 180,
+"posterUrl": "https://example.com/avatar3.jpg",
+"createdAt": "2026-01-13T10:30:00"
+}
+]
+}
+
+````
 
 #### 3. Lấy Movie Theo ID
 
@@ -789,7 +1053,7 @@ Response (200 OK):
     "createdAt": "2026-01-13T10:30:00"
   }
 }
-```
+````
 
 #### 4. Cập Nhật Movie
 
@@ -911,6 +1175,11 @@ spring.h2.console.enabled=true
 - (Optional) **Axon Server** nếu muốn dùng distributed event store
 
 ### Bước 1: Clone Repository
+
+CRUD operations cho Employees
+
+- ✅ CRUD operations cho WorkShifts
+- ✅
 
 ```bash
 git clone <repository-url>
@@ -1073,6 +1342,358 @@ Collection bao gồm:
 
 ---
 
+## Xử Lý Replay Event Fail
+
+### Vấn Đề: Event Replay Failures
+
+Trong Event Sourcing, khi một Command Handler thất bại và throw exception, event đã được publish có thể gây ra **event replay failures** - tức là khi aggregate được rebuild từ event store, nó có thể gặp lỗi tương tự.
+
+#### Nguyên nhân phổ biến:
+
+1. **Validation Logic trong EventSourcingHandler**
+
+   ```java
+   // ❌ KHÔNG NÊN - Validation trong EventSourcingHandler
+   @EventSourcingHandler
+   public void on(MovieCreateEvent event) {
+       if (event.getTitle() == null) {
+           throw new IllegalArgumentException("Title cannot be null");
+       }
+       this.title = event.getTitle();
+   }
+   ```
+
+2. **External Dependencies trong Aggregate**
+
+   ```java
+   // ❌ KHÔNG NÊN - Gọi external service trong EventSourcingHandler
+   @EventSourcingHandler
+   public void on(MovieCreateEvent event) {
+       externalService.notifyCreation(event); // Fail khi replay!
+   }
+   ```
+
+3. **Thiếu State Validation**
+   ```java
+   // ❌ KHÔNG NÊN - Không check state trước khi update
+   @CommandHandler
+   public void handle(UpdateMovieCommand command) {
+       // Nếu aggregate chưa tồn tại, event sẽ fail khi replay
+       AggregateLifecycle.apply(new MovieUpdatedEvent(...));
+   }
+   ```
+
+### ✅ Giải Pháp 1: Validation trong Command Handler
+
+**Nguyên tắc:** Validate TẤT CẢ business rules TRƯỚC KHI publish event.
+
+```java
+@Aggregate
+@NoArgsConstructor
+@Slf4j
+public class MovieAggregate {
+
+    @AggregateIdentifier
+    private String id;
+    private String title;
+    private String description;
+    private Integer duration;
+    private String posterUrl;
+
+    // ✅ Validation trong Command Handler
+    @CommandHandler
+    public MovieAggregate(CreateMovieCommand command) {
+        log.info("CreateMovieCommand received - ID: {}, Title: {}",
+                 command.getId(), command.getTitle());
+
+        // Validate business rules
+        if (command.getId() == null || command.getTitle() == null) {
+            throw new IllegalArgumentException("Movie id and title must not be null");
+        }
+
+        if (command.getDuration() != null && command.getDuration() < 1) {
+            throw new IllegalArgumentException("Duration must be positive");
+        }
+
+        // Chỉ publish event KHI validation pass
+        MovieCreateEvent event = new MovieCreateEvent();
+        BeanUtils.copyProperties(command, event);
+        AggregateLifecycle.apply(event);
+    }
+
+    // ✅ EventSourcingHandler đơn giản, không validation
+    @EventSourcingHandler
+    public void on(MovieCreateEvent event) {
+        // Chỉ cập nhật state, KHÔNG validation
+        this.id = event.getId();
+        this.title = event.getTitle();
+        this.description = event.getDescription();
+        this.duration = event.getDuration();
+        this.posterUrl = event.getPosterUrl();
+    }
+}
+```
+
+**Lợi ích:**
+
+- Event chỉ được publish khi data đã valid
+- EventSourcingHandler luôn thành công khi replay
+- Business logic tập trung ở Command Handler
+
+### ✅ Giải Pháp 2: State Validation cho Update/Delete
+
+```java
+@Aggregate
+@NoArgsConstructor
+@Slf4j
+public class MovieAggregate {
+
+    // UPDATE MOVIE
+    @CommandHandler
+    public void handle(UpdateMovieCommand command) {
+        log.info("UpdateMovieCommand received - ID: {}", command.getId());
+
+        // ✅ Check aggregate đã tồn tại chưa
+        if (this.id == null) {
+            throw new IllegalStateException("Movie does not exist");
+        }
+
+        // ✅ Validate dữ liệu update
+        if (command.getTitle() == null || command.getTitle().isBlank()) {
+            throw new IllegalArgumentException("Title cannot be empty");
+        }
+
+        MovieUpdatedEvent event = new MovieUpdatedEvent();
+        BeanUtils.copyProperties(command, event);
+        AggregateLifecycle.apply(event);
+    }
+
+    // DELETE MOVIE
+    @CommandHandler
+    public void handle(DeleteMovieCommand command) {
+        log.info("DeleteMovieCommand received - ID: {}", command.getId());
+
+        // ✅ Check aggregate tồn tại
+        if (this.id == null) {
+            throw new IllegalStateException("Movie does not exist");
+        }
+
+        MovieDeletedEvent event = new MovieDeletedEvent();
+        BeanUtils.copyProperties(command, event);
+
+        AggregateLifecycle.apply(event);
+        AggregateLifecycle.markDeleted(); // ⭐ Đánh dấu aggregate đã xóa
+    }
+
+    @EventSourcingHandler
+    public void on(MovieDeletedEvent event) {
+        // ✅ Không cần set field gì
+        // Aggregate đã được markDeleted
+    }
+}
+```
+
+**Lợi ích:**
+
+- Ngăn update/delete aggregate không tồn tại
+- `markDeleted()` ngăn commands mới đến aggregate đã xóa
+- Event replay luôn consistent
+
+### ✅ Giải Pháp 3: Exception Handling ở Controller
+
+```java
+@RestController
+@RequestMapping("/api/v1/movies")
+@Slf4j
+public class MovieCommandController {
+
+    @Autowired
+    private CommandGateway commandGateway;
+
+    @Autowired
+    private MovieRepository movieRepository;
+
+    @PostMapping
+    @ApiMessage("Tạo phim thành công")
+    public CommandResponse createMovie(@Valid @RequestBody MovieRequestModel model) {
+        String id = UUID.randomUUID().toString();
+
+        log.info("Creating movie - Title: {}, Duration: {}",
+                 model.getTitle(), model.getDuration());
+
+        CreateMovieCommand command = new CreateMovieCommand(
+                id,
+                model.getTitle(),
+                model.getDescription(),
+                model.getDuration(),
+                model.getPosterUrl());
+
+        try {
+            commandGateway.sendAndWait(command);
+        } catch (Exception e) {
+            log.error("Failed to create movie: {}", e.getMessage(), e);
+            throw new RuntimeException("Không thể tạo phim: " + e.getMessage());
+        }
+
+        return new CommandResponse(id);
+    }
+
+    @DeleteMapping("/{id}")
+    @ApiMessage("Xóa phim thành công")
+    public CommandResponse deleteMovie(@PathVariable String id) {
+
+        // ✅ Cleanup resources trước khi xóa
+        try {
+            Movie movie = movieRepository.findById(id).orElse(null);
+            if (movie != null && movie.getPosterUrl() != null) {
+                minioService.deleteFileByUrl(movie.getPosterUrl());
+                log.info("Deleted poster for movie: {}", id);
+            }
+        } catch (Exception e) {
+            log.warn("Failed to delete poster: {}", e.getMessage());
+            // Không throw - tiếp tục xóa movie
+        }
+
+        try {
+            DeleteMovieCommand command = new DeleteMovieCommand(id);
+            commandGateway.sendAndWait(command);
+        } catch (Exception e) {
+            log.error("Failed to delete movie: {}", e.getMessage(), e);
+            throw new RuntimeException("Không thể xóa phim: " + e.getMessage());
+        }
+
+        return new CommandResponse(id);
+    }
+}
+```
+
+**Lợi ích:**
+
+- Catch exceptions từ Command Handler
+- Cleanup external resources (files, cache, etc.)
+- Trả về error message rõ ràng cho client
+
+### ✅ Giải Pháp 4: Idempotent Event Handlers
+
+```java
+@Component
+public class MovieProjection {
+
+    private final MovieRepository movieRepository;
+
+    @EventHandler
+    public void on(MovieCreateEvent event) {
+        // ✅ Idempotent - check tồn tại trước khi create
+        if (movieRepository.existsById(event.getId())) {
+            log.warn("Movie already exists: {}", event.getId());
+            return; // Skip duplicate event
+        }
+
+        Movie movie = new Movie();
+        BeanUtils.copyProperties(event, movie);
+        movieRepository.save(movie);
+    }
+
+    @EventHandler
+    public void on(MovieUpdatedEvent event) {
+        // ✅ Safe - sử dụng Optional
+        Movie movie = movieRepository.findById(event.getId())
+            .orElseThrow(() -> new RuntimeException("Movie not found: " + event.getId()));
+
+        movie.setTitle(event.getTitle());
+        movie.setDescription(event.getDescription());
+        movie.setDuration(event.getDuration());
+        movie.setPosterUrl(event.getPosterUrl());
+
+        movieRepository.save(movie);
+    }
+
+    @EventHandler
+    public void on(MovieDeletedEvent event) {
+        // ✅ Idempotent - không throw nếu không tồn tại
+        if (movieRepository.existsById(event.getId())) {
+            movieRepository.deleteById(event.getId());
+        } else {
+            log.warn("Movie already deleted: {}", event.getId());
+        }
+    }
+}
+```
+
+**Lợi ích:**
+
+- Xử lý duplicate events an toàn
+- Không crash khi replay events
+- Đảm bảo eventual consistency
+
+### ⚠️ Anti-Patterns CẦN TRÁNH
+
+#### ❌ KHÔNG dùng @DisallowReply
+
+```java
+// ❌ TRÁNH - Che giấu lỗi thay vì fix root cause
+@CommandHandler
+@DisallowReply  // Không nên dùng
+public MovieAggregate(CreateMovieCommand command) {
+    // Exception ở đây sẽ không được báo về client
+    AggregateLifecycle.apply(new MovieCreateEvent(...));
+}
+```
+
+**Tại sao không nên:**
+
+- Che giấu lỗi thật sự
+- Client không biết command fail
+- Khó debug khi có vấn đề
+- Event vẫn bị lỗi khi replay
+
+#### ❌ KHÔNG catch Exception trong EventSourcingHandler
+
+```java
+// ❌ TRÁNH - Nuốt exception trong EventSourcingHandler
+@EventSourcingHandler
+public void on(MovieCreateEvent event) {
+    try {
+        this.title = event.getTitle();
+        // ... other code
+    } catch (Exception e) {
+        log.error("Error: ", e);
+        // Event replay sẽ skip lỗi này!
+    }
+}
+```
+
+**Tại sao không nên:**
+
+- State của aggregate sẽ không đúng
+- Aggregate bị corrupt
+- Khó phát hiện vấn đề
+
+### 📋 Checklist: Tránh Event Replay Failures
+
+Khi viết Command Handler, đảm bảo:
+
+- [ ] **Validate đầy đủ** trong CommandHandler TRƯỚC KHI publish event
+- [ ] **Check state** (aggregate đã tồn tại chưa) cho Update/Delete
+- [ ] **Không có logic phức tạp** trong EventSourcingHandler
+- [ ] **Không gọi external services** trong Aggregate
+- [ ] **Use `markDeleted()`** khi delete aggregate
+- [ ] **Idempotent Event Handlers** trong Projection
+- [ ] **Try-catch ở Controller** để handle exceptions
+- [ ] **Log đầy đủ** để dễ debug
+
+### 🎯 Summary: Event Replay Best Practices
+
+| Concern                | Command Side                  | Event Side         | Query Side             |
+| ---------------------- | ----------------------------- | ------------------ | ---------------------- |
+| **Validation**         | ✅ Validate tất cả            | ❌ Không validate  | ✅ Optional validation |
+| **State Check**        | ✅ Bắt buộc cho Update/Delete | ❌ Không check     | ✅ Check existence     |
+| **Exception Handling** | ✅ Try-catch ở Controller     | ❌ Không catch     | ✅ Handle gracefully   |
+| **External Calls**     | ⚠️ Chỉ ở Controller           | ❌ Tuyệt đối không | ✅ Được phép           |
+| **Idempotency**        | ⚠️ UUID prevents duplicate    | ✅ Bắt buộc        | ✅ Bắt buộc            |
+
+---
+
 ## Best Practices
 
 ### 1. Command Side
@@ -1085,7 +1706,33 @@ Collection bao gồm:
 - Xử lý exceptions trong Aggregate
 - Giữ Aggregates nhỏ gọn, tập trung vào business logic
 
-❌ **DON'T:**
+---
+
+## Tổng Kết Entities
+
+Movies Service hiện quản lý **6 entities chính**:
+
+| Entity        | Mô tả               | Quan hệ                           |
+| ------------- | ------------------- | --------------------------------- |
+| **Movie**     | Thông tin phim      | 1-N với ShowTime                  |
+| **Cinema**    | Thông tin rạp chiếu | 1-N với Seat, ShowTime, Employee  |
+| **Seat**      | Ghế ngồi trong rạp  | N-1 với Cinema                    |
+| **ShowTime**  | Suất chiếu phim     | N-1 với Movie, Cinema             |
+| **Employee**  | Nhân viên rạp       | N-1 với Cinema, 1-N với WorkShift |
+| **WorkShift** | Ca làm việc         | N-1 với Employee                  |
+
+### Luồng Nghiệp Vụ Chính
+
+1. **Quản lý Phim**: Tạo/Cập nhật/Xóa phim với poster
+2. **Quản lý Rạp**: Tạo rạp và ghế ngồi
+3. **Lập Lịch Chiếu**: Tạo suất chiếu cho phim tại rạp cụ thể
+4. **Quản lý Nhân Sự**: Thêm nhân viên vào rạp
+5. **Quản lý Ca Làm**: Xếp ca và điểm danh nhân viên
+
+---
+
+**Version:** 1.1.0  
+**Last Updated:** 2026-01-14
 
 - Không query database trong Aggregate
 - Không gọi external services trong CommandHandler

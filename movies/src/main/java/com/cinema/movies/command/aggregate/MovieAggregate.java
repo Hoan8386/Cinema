@@ -1,5 +1,6 @@
 package com.cinema.movies.command.aggregate;
 
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.axonframework.commandhandling.CommandHandler;
 import org.axonframework.eventsourcing.EventSourcingHandler;
@@ -15,47 +16,89 @@ import com.cinema.movies.command.event.MovieCreateEvent;
 import com.cinema.movies.command.event.MovieUpdatedEvent;
 import com.cinema.movies.command.event.MovieDeletedEvent;
 
-import lombok.NoArgsConstructor;
-
 @Aggregate
 @NoArgsConstructor
 @Slf4j
 public class MovieAggregate {
+
+    /*
+     * =======================
+     * AGGREGATE STATE
+     * =======================
+     */
+
     @AggregateIdentifier
     private String id;
 
     private String title;
-
     private String description;
-
-    private Integer duration; // Thời lượng tính bằng phút
-
+    private Integer duration;
     private String posterUrl;
 
-    // Constructor này sẽ được gọi khi tạo aggregate mới
+    /*
+     * =======================
+     * COMMAND HANDLERS
+     * =======================
+     */
+
+    // CREATE MOVIE
     @CommandHandler
     public MovieAggregate(CreateMovieCommand command) {
-        log.info("Command received - ID: {}, Title: {}", command.getId(), command.getTitle());
-        MovieCreateEvent movieCreateEvent = new MovieCreateEvent();
-        BeanUtils.copyProperties(command, movieCreateEvent);
-        AggregateLifecycle.apply(movieCreateEvent);
+
+        log.info("CreateMovieCommand received - ID: {}, Title: {}",
+                command.getId(), command.getTitle());
+
+        // Validate business rule
+        if (command.getId() == null || command.getTitle() == null) {
+            throw new IllegalArgumentException("Movie id and title must not be null");
+        }
+
+        MovieCreateEvent event = new MovieCreateEvent();
+        BeanUtils.copyProperties(command, event);
+
+        AggregateLifecycle.apply(event);
     }
 
-    // Command handler cho Update Movie
+    // UPDATE MOVIE
     @CommandHandler
     public void handle(UpdateMovieCommand command) {
-        MovieUpdatedEvent movieUpdatedEvent = new MovieUpdatedEvent();
-        BeanUtils.copyProperties(command, movieUpdatedEvent);
-        AggregateLifecycle.apply(movieUpdatedEvent);
+
+        log.info("UpdateMovieCommand received - ID: {}", command.getId());
+
+        // Aggregate must exist
+        if (this.id == null) {
+            throw new IllegalStateException("Movie does not exist");
+        }
+
+        MovieUpdatedEvent event = new MovieUpdatedEvent();
+        BeanUtils.copyProperties(command, event);
+
+        AggregateLifecycle.apply(event);
     }
 
-    // Command handler cho Delete Movie
+    // DELETE MOVIE
     @CommandHandler
     public void handle(DeleteMovieCommand command) {
-        MovieDeletedEvent movieDeletedEvent = new MovieDeletedEvent();
-        BeanUtils.copyProperties(command, movieDeletedEvent);
-        AggregateLifecycle.apply(movieDeletedEvent);
+
+        log.info("DeleteMovieCommand received - ID: {}", command.getId());
+
+        // Aggregate must exist
+        if (this.id == null) {
+            throw new IllegalStateException("Movie does not exist");
+        }
+
+        MovieDeletedEvent event = new MovieDeletedEvent();
+        BeanUtils.copyProperties(command, event);
+
+        AggregateLifecycle.apply(event);
+        AggregateLifecycle.markDeleted(); // ⭐ RẤT QUAN TRỌNG
     }
+
+    /*
+     * =======================
+     * EVENT SOURCING HANDLERS
+     * =======================
+     */
 
     @EventSourcingHandler
     public void on(MovieCreateEvent event) {
@@ -68,7 +111,6 @@ public class MovieAggregate {
 
     @EventSourcingHandler
     public void on(MovieUpdatedEvent event) {
-        this.id = event.getId();
         this.title = event.getTitle();
         this.description = event.getDescription();
         this.duration = event.getDuration();
@@ -77,6 +119,7 @@ public class MovieAggregate {
 
     @EventSourcingHandler
     public void on(MovieDeletedEvent event) {
-        this.id = event.getId();
+        // Không cần set field nào
+        // Aggregate đã bị markDeleted
     }
 }

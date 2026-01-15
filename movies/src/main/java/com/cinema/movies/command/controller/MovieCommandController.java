@@ -52,7 +52,12 @@ public class MovieCommandController {
                 model.getDuration(),
                 model.getPosterUrl());
 
-        commandGateway.sendAndWait(command);
+        try {
+            commandGateway.sendAndWait(command);
+        } catch (Exception e) {
+            log.error("Failed to create movie: {}", e.getMessage(), e);
+            throw new RuntimeException("Không thể tạo phim: " + e.getMessage());
+        }
 
         return new CommandResponse(id);
     }
@@ -84,7 +89,20 @@ public class MovieCommandController {
                 duration,
                 posterUrl);
 
-        commandGateway.sendAndWait(command);
+        try {
+            commandGateway.sendAndWait(command);
+        } catch (Exception e) {
+            log.error("Failed to create movie with file: {}", e.getMessage(), e);
+            // Xóa file đã upload nếu command fail
+            if (posterUrl != null) {
+                try {
+                    minioService.deleteFileByUrl(posterUrl);
+                } catch (Exception ex) {
+                    log.warn("Failed to cleanup uploaded file: {}", ex.getMessage());
+                }
+            }
+            throw new RuntimeException("Không thể tạo phim: " + e.getMessage());
+        }
 
         return new CommandResponse(id);
     }
@@ -114,7 +132,12 @@ public class MovieCommandController {
                 model.getDuration(),
                 model.getPosterUrl());
 
-        commandGateway.sendAndWait(command);
+        try {
+            commandGateway.sendAndWait(command);
+        } catch (Exception e) {
+            log.error("Failed to update movie: {}", e.getMessage(), e);
+            throw new RuntimeException("Không thể cập nhật phim: " + e.getMessage());
+        }
 
         return new CommandResponse(id);
     }
@@ -162,7 +185,12 @@ public class MovieCommandController {
                 duration,
                 posterUrl);
 
-        commandGateway.sendAndWait(command);
+        try {
+            commandGateway.sendAndWait(command);
+        } catch (Exception e) {
+            log.error("Failed to update movie with file: {}", e.getMessage(), e);
+            throw new RuntimeException("Không thể cập nhật phim: " + e.getMessage());
+        }
 
         return new CommandResponse(id);
     }
@@ -183,7 +211,13 @@ public class MovieCommandController {
         }
 
         DeleteMovieCommand command = new DeleteMovieCommand(id);
-        commandGateway.sendAndWait(command);
+
+        try {
+            commandGateway.sendAndWait(command);
+        } catch (Exception e) {
+            log.error("Failed to delete movie: {}", e.getMessage(), e);
+            throw new RuntimeException("Không thể xóa phim: " + e.getMessage());
+        }
 
         return new CommandResponse(id);
     }

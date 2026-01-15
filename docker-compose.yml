@@ -1,0 +1,16 @@
+version: '3.7'
+
+services:
+  minio:
+    container_name: minio_server
+    image: quay.io/minio/minio
+    restart: unless-stopped
+    ports:
+      - "9000:9000"  # MinIO API
+      - "9090:9090"  # MinIO Web Console (đổi từ 9001 -> 9090)
+    volumes:
+      - ./storage:/minio/data
+    environment:
+      MINIO_ROOT_USER: admin
+      MINIO_ROOT_PASSWORD: password
+    command: server --console-address ":9090" /minio/data

@@ -20,6 +20,16 @@
             "projectName": "movies",
             "args": "",
             "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-CommonserviceApplication<commonservice>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.cinema.commonservice.CommonserviceApplication",
+            "projectName": "commonservice",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
         }
     ]
 }
