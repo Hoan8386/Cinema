@@ -1,0 +1,26 @@
+server:
+  port: 8080
+spring:
+  application:
+    name: gateway-service
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+      routes:
+        -id: movies
+        uri: lb://movies
+        predicates:
+          -Path: /api/v1/**
+eureka:
+  instance:
+    name: localhost
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+      register-with-eureka: true
+      fetch-registry: true
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
