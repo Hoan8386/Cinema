@@ -1,16 +1,57 @@
 version: '3.7'
 
 services:
+  # ======================
+  # MinIO
+  # ======================
   minio:
     container_name: minio_server
     image: quay.io/minio/minio
     restart: unless-stopped
     ports:
-      - "9000:9000"  # MinIO API
-      - "9090:9090"  # MinIO Web Console (đổi từ 9001 -> 9090)
+      - "9000:9000"   # MinIO API
+      - "9090:9090"   # MinIO Web Console
     volumes:
       - ./storage:/minio/data
     environment:
       MINIO_ROOT_USER: admin
       MINIO_ROOT_PASSWORD: password
     command: server --console-address ":9090" /minio/data
+    networks:
+      - ms_network
+
+  # ======================
+  # Redis
+  # ======================
+  redis:
+    container_name: redis
+    image: redis:7
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    networks:
+      - ms_network
+
+  # ======================
+  # Redis UI (RedisInsight)
+  # ======================
+  redisinsight:
+    container_name: redis-insight
+    image: redis/redisinsight:latest
+    restart: unless-stopped
+    ports:
+      - "5540:5540"
+    depends_on:
+      - redis
+    networks:
+      - ms_network
+
+volumes:
+  redis_data:
+
+networks:
+  ms_network:
+    driver: bridge
