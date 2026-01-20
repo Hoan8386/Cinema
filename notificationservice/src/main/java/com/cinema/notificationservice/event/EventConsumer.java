@@ -26,11 +26,11 @@ public class EventConsumer {
     @RetryableTopic(attempts = "4", // 3 topic retry + 1 topic DLQ
             autoCreateTopics = "true", dltStrategy = DltStrategy.FAIL_ON_ERROR, include = { RetriableException.class,
                     RuntimeException.class })
-    @KafkaListener(topics = "test", containerFactory = "kafkaListenerContainerFactory")
+    @KafkaListener(topics = "cinema", containerFactory = "kafkaListenerContainerFactory")
     public void listen(String message) {
         log.info("Received message: " + message);
         // processing message
-        throw new RuntimeException("Error test");
+        // throw new RuntimeException("Error test");
     }
 
     @DltHandler

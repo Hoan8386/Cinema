@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cinema.commonservice.annotation.ApiMessage;
+import com.cinema.commonservice.service.KafkaService;
 import com.cinema.movies.command.command.CreateCinemaCommand;
 import com.cinema.movies.command.command.UpdateCinemaCommand;
 import com.cinema.movies.command.command.DeleteCinemaCommand;
@@ -28,6 +29,9 @@ public class CinemaCommandController {
 
     @Autowired
     private CommandGateway commandGateway;
+
+    @Autowired
+    private KafkaService kafkaService;
 
     @PostMapping
     @ApiMessage("Tạo rạp chiếu phim thành công")
@@ -68,4 +72,10 @@ public class CinemaCommandController {
 
         return new CommandResponse(id);
     }
+
+    @PostMapping("/sendMessage")
+    public void sendMessage(@RequestBody String message) {
+        kafkaService.sendMessage("cinema", message);
+    }
+
 }
